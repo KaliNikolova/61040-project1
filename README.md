@@ -1,22 +1,65 @@
-# DayPlanner 
-A simple day planner. This implementation focuses on the core concept of organizing activities for a single day with both manual and AI-assisted scheduling.
+# Assignment 3: Focus
 
-## Concept: DayPlanner
+I have chosen to augment the Focus concept. This concept is the most direct interface for the user's current work, making it the perfect place to introduce an AI feature that helps them overcome the initial friction of starting that very task. The "First Step" generator fits naturally here as a way to enhance the core purpose of the Focus concept, which is to eliminate decision fatigue.
 
-**Purpose**: Help you organize activities for a single day  
-**Principle**: You can add activities one at a time, assign them to times, and then observe the completed schedule
+## Concept: Focus
 
-### Core State
-- **Activities**: Set of activities with title, duration, and optional startTime
-- **Assignments**: Set of activity-to-time assignments
-- **Time System**: All times in half-hour slots starting at midnight (0 = 12:00 AM, 13 = 6:30 AM)
+**Original Concept**
 
-### Core Actions
-- `addActivity(title: string, duration: number): Activity`
-- `removeActivity(activity: Activity)`
-- `assignActivity(activity: Activity, startTime: number)`
-- `unassignActivity(activity: Activity)`
-- `requestAssignmentsFromLLM()` - AI-assisted scheduling with hardwired preferences
+```
+concept Focus [User, Task]
+  purpose to eliminate decision fatigue by presenting the single task a user should be working on right now
+  principle it presents the currently scheduled task to the user, providing a single point of focus
+  state
+    a CurrentTask element of User with
+      a task Task
+  actions
+    setCurrentTask (user: User, task: Task)
+      effect sets the specified task as the user's current focus
+    clearCurrentTask (user: User)
+      effect removes the current task for the user
+    getCurrentTask (user: User): (task: optional Task)
+      effect returns the user's current task, if any
+```
+
+
+**AI-Augmented Concept**
+
+```
+concept Focus [User, Task]
+  purpose to present a single task for the user to work on, with an AI-generated first step available on demand
+  principle the user is shown one current task; they can trigger an AI action to generate a single, small starting step for that task.
+
+  state
+    a CurrentTask element of User with
+      a task Task
+      
+    an optional FirstStepSuggestion element of User with
+      a forTask Task
+      a suggestionText String
+
+  actions
+    setCurrentTask (user: User, task: Task)
+      effect sets the specified task as the user's current task and clears any FirstStepSuggestion
+      
+    clearCurrentTask (user: User)
+      effect removes the current task and any FirstStepSuggestion
+      
+    getCurrentTask (user: User): (task: optional Task)
+      effect returns the user's current task, if any
+    
+    generateFirstStep (user: User, task: Task)
+      requires current task is set and matches the provided task
+      effect calls an LLM to generate a five-min starting action and creates a FirstStepSuggestion
+```
+
+## User Interaction
+
+![alt text](image.png)
+
+**User Journey**
+
+Alex opens the "Now" screen in her app and sees her most daunting task: "Write research paper." She feels stuck, facing the classic paralysis of not knowing where to start. Her eyes land on the expand icon next to "💡 Where can I start from?". Curious and needing a nudge, she taps it. The section smoothly expands, revealing a single, concrete suggestion from the AI: "Open a new document and write down five potential titles." The suggestion is small, clear, and not intimidating. The mental block shatters. Alex feels a sense of relief and immediately opens a document to begin. She has successfully overcome the initial inertia and started her work.
 
 ## Prerequisites
 
