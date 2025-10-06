@@ -61,6 +61,10 @@ concept Focus [User, Task]
 
 Alex opens the "Now" screen in her app and sees her most daunting task: "Write research paper." She feels stuck, facing the classic paralysis of not knowing where to start. Her eyes land on the expand icon next to "💡 Where can I start from?". Curious and needing a nudge, she taps it. The section smoothly expands, revealing a single, concrete suggestion from the AI: "Open a new document and write down five potential titles." The suggestion is small, clear, and not intimidating. The mental block shatters. Alex feels a sense of relief and immediately opens a document to begin. She has successfully overcome the initial inertia and started her work.
 
+## Validations
+
+To protect the user from unhelpful or counterproductive AI suggestions, I implemented three distinct validators to check for plausible logical issues in the LLM's output. First, the AI might produce a non-actionable suggestion, such as a question or a reflective statement, which would fail to provide the user with a clear starting point. To prevent this, the validateIsActionable function checks that the suggestion begins with a verb from a comprehensive, predefined list of action words (e.g., "Open," "Write," "List"). Second, the AI could suggest a task with too large a scope, defeating the feature's purpose of providing a small, non-intimidating step. The validateIsShort validator mitigates this by scanning the output for "red-flag phrases" like "complete the project" or "the entire chapter" that imply a task longer than five minutes. Finally, the AI might return a verbose, multi-sentence response, which would increase the user's cognitive load. The validateIsSingleSentence validator enforces brevity by ensuring there is no sentence-terminating punctuation (. ? !) followed by additional text, guaranteeing the user receives only a single, focused command.
+
 ## Prerequisites
 
 - **Node.js** (version 14 or higher)

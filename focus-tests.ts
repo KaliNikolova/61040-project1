@@ -123,11 +123,11 @@ export async function testCreativeTask(): Promise<void> {
 }
 
 /**
- * Test Case 4: The Interpersonal Task
+ * Test Case 5: The Interpersonal Task
  * Probes if the AI can suggest an emotionally intelligent preparation step.
  */
 export async function testInterpersonalTask(): Promise<void> {
-    console.log('\n🧪 TEST CASE 4: The Edgy Interpersonal Task');
+    console.log('\n🧪 TEST CASE 5: AI Augmentation for an Interpersonal Task');
     console.log('=============================================');
     const focus = new Focus();
     const llm = new GeminiLLM(loadConfig());

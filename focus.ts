@@ -113,9 +113,9 @@ export class Focus {
             const suggestionText = response.suggestion;
             console.log('📝 Validating and applying LLM suggestion...');
 
-            this.validateNotEmpty(suggestionText);
             this.validateIsActionable(suggestionText);
             this.validateIsShort(suggestionText);
+            this.validateIsSingleSentence(suggestionText);
 
             const suggestion: FirstStepSuggestion = {
                 forTask,
@@ -196,9 +196,27 @@ export class Focus {
         }
     }
 
-    private validateNotEmpty(text: string): void {
-        if (text.trim().length === 0) {
-            throw new Error(`Validation Error: Suggestion is empty or just whitespace.`);
+    /**
+     * Validator to ensure the suggestion is only one sentence.
+     * It checks for sentence-terminating punctuation (. ? !) followed by more text.
+     */
+    private validateIsSingleSentence(text: string): void {
+        // Find the index of the first sentence-ending character.
+        const terminators = ['.', '?', '!'];
+        const indices = terminators.map(t => text.indexOf(t)).filter(i => i !== -1);
+
+        // If there's no sentence-ending punctuation at all, it's a single command. That's valid.
+        if (indices.length === 0) {
+            return;
+        }
+
+        const firstTerminatorIndex = Math.min(...indices);
+
+        // Check if there is any non-whitespace text after the first punctuation mark.
+        const remainingText = text.substring(firstTerminatorIndex + 1).trim();
+
+        if (remainingText.length > 0) {
+            throw new Error(`Validation Error: Suggestion must be a single sentence. Got: "${text}"`);
         }
     }
 
