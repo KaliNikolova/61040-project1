@@ -26,8 +26,9 @@ const user1: User = { id: 'user123' };
 
 // These correspond to the "richer test cases" deliverable
 const vagueTask: Task = { description: "Get organized for the week" };
-const technicalTask: Task = { description: "Debug the CORS issue in the staging environment" };
-const creativeTask: Task = { description: "Design a logo for the new project" };
+const technicalTask: Task = { description: "Refactor the user authentication module to improve performance" };
+const creativeTask: Task = { description: "Design a poster for the upcoming 'Code & Cookies' club bake sale" };
+const interpersonalTask: Task = { description: "Give constructive feedback to a sensitive teammate about their recent work on the project" };
 
 
 /**
@@ -121,6 +122,26 @@ export async function testCreativeTask(): Promise<void> {
     focus.displayFocus(user1);
 }
 
+/**
+ * Test Case 4: The Interpersonal Task
+ * Probes if the AI can suggest an emotionally intelligent preparation step.
+ */
+export async function testInterpersonalTask(): Promise<void> {
+    console.log('\n🧪 TEST CASE 4: The Edgy Interpersonal Task');
+    console.log('=============================================');
+    const focus = new Focus();
+    const llm = new GeminiLLM(loadConfig());
+
+    console.log('📝 Setting the creative task as current focus...');
+    focus.setCurrentTask(user1, interpersonalTask);
+    focus.displayFocus(user1);
+    
+    await focus.generateFirstStep(user1, llm);
+
+    console.log('\n🎯 Final state after LLM suggestion:');
+    focus.displayFocus(user1);
+}
+
 
 /**
  * Main function to run all test cases
@@ -137,6 +158,7 @@ async function main(): Promise<void> {
         await testVagueTask();
         await testTechnicalTask();
         await testCreativeTask();
+        await testInterpersonalTask();
 
         console.log('\n🎉 All test cases completed successfully!');
 

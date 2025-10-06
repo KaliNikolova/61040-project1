@@ -75,19 +75,22 @@ export class Focus {
      */
     private createFirstStepPrompt(task: Task): string {
         return `
-            You are a productivity coach who helps users overcome procrastination.
+            You are a productivity AI. Your only goal is to defeat procrastination.
             Your goal is to provide a single, concrete, physical or digital action that a person can complete in five minutes or less to get started on their task.
 
-            The action should be a direct command. Do not ask questions or offer encouragement.
+            CRITICAL RULES:
+            1. The action must be a single sentence.
+            2. The action must be a direct concrete command (e.g., "Open...", "Write...", "List..."). Do not suggest mental actions like "Think about...". Give something that is easily executable given your instructions.
+            3. Your entire output MUST be ONLY a valid JSON object. Do not add any other text, explanations, or markdown formatting like \`\`\`json.
+            4. Be accurate - suggest ONLY actions that correspond to starting the task and are helpful.
+            5. Do not make unwarranted assumptions about the user's context, tools, and workflow.
 
             TASK: "${task.description}"
 
-            Return your response as a JSON object with this exact structure:
+            JSON OUTPUT:
             {
-            "suggestion": "The five-minute starting action."
-            }
-
-            Return ONLY the JSON object, no additional text or markdown.`;
+            "suggestion": "The short, actionable command."
+            }`;
     }
 
     /**
@@ -132,7 +135,25 @@ export class Focus {
     // --- VALIDATORS ---
 
     private validateIsActionable(text: string): void {
-        const ACTION_VERBS = ["open", "write", "create", "list", "set", "review", "find", "make", "take", "move", "go", "identify"];
+        const ACTION_VERBS = [
+            // --- Creation & Writing ---
+            "write", "create", "draft", "outline", "list", "sketch", "draw", "jot", "type",
+
+            // --- Investigation & Research ---
+            "find", "search", "look up", "read", "review", "identify", "gather", "watch",
+
+            // --- Setup & Organization ---
+            "open", "set up", "organize", "schedule", "book", "add", "download", "install",
+
+            // --- Communication & Interpersonal ---
+            "email", "message", "call", "ask", "send",
+
+            // --- Physical Actions ---
+            "take out", "move", "put", "go to", "get",
+
+            // --- Technical & Process Actions ---
+            "run", "test", "debug", "check"
+        ];
         const firstWord = text.trim().split(' ')[0].toLowerCase();
         if (!ACTION_VERBS.some(verb => firstWord.startsWith(verb))) {
             throw new Error(`Validation Error: Suggestion is not an actionable command. Got: "${text}"`);
@@ -140,9 +161,37 @@ export class Focus {
     }
 
     private validateIsShort(text: string): void {
-        const RED_FLAG_WORDS = ["complete", "entire", "whole", "fully", "finish", "build the"];
+        const RED_FLAG_PHRASES = [
+            // --- Verbs of Finality or Creation + a Large Noun ---
+            // These imply finishing or building a significant component.
+            "complete the",
+            "finish the",
+            "finalize the",
+            "implement the",
+            "build the",
+            "design the",
+            "write the entire",
+            "write the full",
+            "create the whole",
+
+            // --- Nouns Indicating a Large, Undefined Scope ---
+            // These words suggest a major milestone, not a first step.
+            "the entire module",
+            "the whole chapter",
+            "the full draft",
+            "the first draft",
+            "the final version",
+            "the complete list", // "a list" is okay, "the complete list" is not.
+
+            // --- General Phrases Implying a Large Quantity of Work ---
+            "all of the",
+            "every part of",
+            "the rest of the",
+            "organize all",
+            "clean the entire"
+        ];
         const lowerText = text.toLowerCase();
-        if (RED_FLAG_WORDS.some(word => lowerText.includes(word))) {
+        if (RED_FLAG_PHRASES.some(word => lowerText.includes(word))) {
             throw new Error(`Validation Error: Suggestion implies too large a scope. Got: "${text}"`);
         }
     }
