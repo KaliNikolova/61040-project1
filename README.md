@@ -48,7 +48,7 @@ concept Focus [User, Task]
     getCurrentTask (user: User): (task: optional Task)
       effect returns the user's current task, if any
     
-    generateFirstStep (user: User, task: Task)
+    async generateFirstStep (user: User, task: Task)
       requires current task is set and matches the provided task
       effect calls an LLM to generate a five-min starting action and creates a FirstStepSuggestion
 ```
